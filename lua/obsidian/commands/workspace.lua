@@ -4,16 +4,16 @@ local Workspace = require "obsidian.workspace"
 return function(data)
   if not data.args or string.len(data.args) == 0 then
     ---@type obsidian.PickerEntry[]
-    local items = vim.tbl_map(function(ws)
-      if ws.name == ".obsidian.wiki" then
-        return
+    local items = {}
+    for _, ws in ipairs(Obsidian.workspaces) do
+      if ws.name ~= ".obsidian.wiki" then
+        table.insert(items, {
+          user_data = ws,
+          text = tostring(ws),
+          filename = tostring(ws.path),
+        })
       end
-      return {
-        user_data = ws,
-        text = tostring(ws),
-        filename = tostring(ws.path),
-      }
-    end, Obsidian.workspaces)
+    end
     Obsidian.picker.pick(items, {
       prompt_title = "Obsidian Workspace",
       callback = function(entry)
