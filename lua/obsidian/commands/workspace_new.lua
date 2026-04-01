@@ -26,7 +26,8 @@ return function(data)
   end
 
   -- Create the directory
-  if vim.fn.mkdir(path, "p") == 0 then
+  vim.fn.mkdir(path, "p")
+  if vim.fn.isdirectory(path) == 0 then
     log.err("Failed to create directory: %s", path)
     return
   end
