@@ -192,6 +192,7 @@ end
 ---@param specs obsidian.workspace.WorkspaceSpec[]
 ---@return obsidian.Workspace[]
 Workspace.setup = function(specs)
+  local workspace_state = require "obsidian.workspace_state"
   local workspaces = {}
 
   for _, spec in ipairs(specs) do
@@ -203,6 +204,22 @@ Workspace.setup = function(specs)
 
   if vim.tbl_isempty(workspaces) then
     error "At least one workspace is required!\nPlease specify a valid workspace"
+  end
+
+  -- Merge state-file workspaces before cwd detection so they are considered
+  -- for auto-switching. Config-defined names take precedence.
+  local config_names = {}
+  for _, ws in ipairs(workspaces) do
+    config_names[ws.name] = true
+  end
+
+  for _, spec in ipairs(workspace_state.load()) do
+    if not config_names[spec.name] then
+      local ws = Workspace.new(spec)
+      if ws then
+        table.insert(workspaces, ws)
+      end
+    end
   end
 
   local current_workspace = Workspace.find(assert(vim.uv.cwd()), workspaces)
