@@ -19,7 +19,44 @@ T["new"]["should be able to initialize a workspace"] = function()
   eq(true, tmpdir:resolve() == ws.path)
 end
 
-T["setup"] = new_set() -- TODO: test for cwd vs first ws
+local workspace_state = require "obsidian.workspace_state"
+
+T["setup"] = new_set()
+
+T["setup"]["merges state-file workspaces into workspace list"] = function()
+  local config_dir = Path.temp()
+  config_dir:mkdir()
+  local state_dir = Path.temp()
+  state_dir:mkdir()
+
+  local orig = workspace_state.load
+  workspace_state.load = function()
+    return { { name = "state_ws", path = tostring(state_dir) } }
+  end
+
+  local wss = workspace.setup { { path = tostring(config_dir), name = "config_ws" } }
+  workspace_state.load = orig
+
+  eq(2, #wss)
+  local names = vim.tbl_map(function(ws) return ws.name end, wss)
+  eq(true, vim.tbl_contains(names, "config_ws"))
+  eq(true, vim.tbl_contains(names, "state_ws"))
+end
+
+T["setup"]["config workspace name takes precedence over state-file duplicate"] = function()
+  local config_dir = Path.temp()
+  config_dir:mkdir()
+
+  local orig = workspace_state.load
+  workspace_state.load = function()
+    return { { name = "config_ws", path = tostring(config_dir) } }
+  end
+
+  local wss = workspace.setup { { path = tostring(config_dir), name = "config_ws" } }
+  workspace_state.load = orig
+
+  eq(1, #wss)
+end
 
 T["setup"]["should error for no valid workspace"] = function()
   local tmpdir = Path.temp()

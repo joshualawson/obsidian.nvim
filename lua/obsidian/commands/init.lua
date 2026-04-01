@@ -228,6 +228,8 @@ M.register("quick_switch", { nargs = "?" })
 
 M.register("workspace", { nargs = "?" })
 
+M.register("workspace_new", { nargs = "+" })
+
 M.register("help", { nargs = "?" })
 
 M.register("helpgrep", { nargs = "?" })
