@@ -30,7 +30,10 @@ end
 M.add = function(spec)
   local specs = M.load()
   table.insert(specs, { name = spec.name, path = tostring(spec.path) })
-  vim.fn.writefile({ vim.fn.json_encode(specs) }, M.filepath())
+  local ok = vim.fn.writefile({ vim.fn.json_encode(specs) }, M.filepath())
+  if ok ~= 0 then
+    log.err("obsidian.nvim: failed to write workspace state file: %s", M.filepath())
+  end
 end
 
 return M

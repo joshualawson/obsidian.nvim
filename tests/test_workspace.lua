@@ -21,7 +21,7 @@ end
 
 local workspace_state = require "obsidian.workspace_state"
 
-T["setup"] = new_set() -- TODO: test for cwd vs first ws
+T["setup"] = new_set()
 
 T["setup"]["merges state-file workspaces into workspace list"] = function()
   local config_dir = Path.temp()
